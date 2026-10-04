@@ -134,6 +134,30 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
         {
             config.outputFile = argv[++i];
         }
+        else if (arg == "--kp" && i + 1 < argc)
+        {
+            config.kp = std::atof(argv[++i]);
+        }
+        else if (arg == "--ki" && i + 1 < argc)
+        {
+            config.ki = std::atof(argv[++i]);
+        }
+        else if (arg == "--kd" && i + 1 < argc)
+        {
+            config.kd = std::atof(argv[++i]);
+        }
+        else if (arg == "--voltage-limit" && i + 1 < argc)
+        {
+            config.voltageLimit = std::atof(argv[++i]);
+        }
+        else if (arg == "--noise-level" && i + 1 < argc)
+        {
+            config.noiseLevel = std::atof(argv[++i]);
+            // If noise level is provided, switch to Gaussian noise automatically
+            if (config.noiseLevel > 0) {
+                config.noiseType = NoiseType::GAUSSIAN;
+            }
+        }
     }
     
     return config;

@@ -36,8 +36,19 @@ make run
 To compile the project and run it with custom simulation parameters via the CLI:
 ```bash
 make
-./build/simulator --duration 10.0 --target 100.0 --timestep 0.01 --output custom_log.csv
+./build/simulator --duration 20.0 --target 150.0 --kp 5.0 --ki 2.5 --kd 0.1 --noise-level 0.05 --output custom_log.csv
 ```
+
+**Supported CLI Parameters:**
+* `--duration <seconds>` : Total simulation time (default 10.0)
+* `--timestep <seconds>` : Physics integration step size (default 0.01)
+* `--target <rad/s>`     : Target angular velocity (default 100.0)
+* `--kp <value>`         : Proportional gain (default 1.0)
+* `--ki <value>`         : Integral gain (default 0.0)
+* `--kd <value>`         : Derivative gain (default 0.0)
+* `--voltage-limit <V>`  : Maximum voltage output (default 12.0)
+* `--noise-level <val>`  : Injects synthetic Gaussian noise into the sensor
+* `--output <file.csv>`  : Name of the generated log file
 
 ## Architecture
 
