@@ -52,6 +52,120 @@ make
 
 ## Architecture
 
+### System Flow
+The following flowchart illustrates the dependency injection at startup and the chronological execution of a single simulation step across the thread boundary:
+
+```mermaid
+graph TD
+    %% Setup
+    Main["main.cpp (Setup & CLI)"] --> Factory["ComponentFactory"]
+    
+    %% Threads
+    subgraph Producer [Main Thread: Physics Engine]
+        Engine["SimulationEngine::step()"]
+        Motor["BrushedDCMotor (Dev 1)"]
+        PID["PIDController (Dev 2)"]
+        Sensor["Tachometer (Dev 3)"]
+        
+        Engine -->|1. get true speed| Motor
+        Engine -->|2. add noise| Sensor
+        Engine -->|3. compute voltage| PID
+        Engine -->|4. apply voltage| Motor
+    end
+    
+    subgraph Bridge [Concurrency]
+        Queue{{"ThreadSafeQueue<LogRecord><br>(Mutex + CondVar)"}}
+    end
+    
+    subgraph Consumer [Background Thread: IO]
+        Logger["LogConsumer::run()"]
+        CSV["CSVOutput (Dev 3)"]
+        
+        Logger -->|write row| CSV
+    end
+    
+    %% Connections
+    Factory -.->|Injects dependencies| Producer
+    Factory -.->|Injects dependencies| Consumer
+    Engine == "5. push(data)" ===> Queue
+    Queue == "6. notify & pop(data)" ===> Logger
+```
+
+### Class Diagram
+The system relies strictly on interface-based design to decouple the plant, controller, and environment.
+
+```mermaid
+classDiagram
+    %% Core Interfaces
+    class Motor {
+        <<interface>>
+        +step(voltage, dt)* void
+        +getAngularVelocity()* double
+    }
+    class ControllerComponent {
+        <<interface>>
+        +compute(error, dt)* double
+    }
+    class Sensor {
+        <<interface>>
+        +measure(trueSpeed)* double
+    }
+    class OutputLogger {
+        <<interface>>
+        +log(record)* void
+    }
+
+    %% Concrete Implementations
+    class BrushedDCMotor {
+        -inertia: double
+        +step(voltage, dt) void
+    }
+    class CompositeController {
+        -components: vector~unique_ptr~
+        +compute(error, dt) double
+    }
+    class TachometerSensor {
+        -noise: unique_ptr~NoiseGenerator~
+        +measure(trueSpeed) double
+    }
+    class CSVOutput {
+        -file: std::ofstream
+        +log(record) void
+    }
+    
+    Motor <|-- BrushedDCMotor
+    ControllerComponent <|-- CompositeController
+    Sensor <|-- TachometerSensor
+    OutputLogger <|-- CSVOutput
+
+    %% Dev 4 Integration
+    class SimulationEngine {
+        -motor: unique_ptr~Motor~
+        -controller: unique_ptr~ControllerComponent~
+        -sensor: unique_ptr~Sensor~
+        -config: SimulationConfig
+        -queue: ThreadSafeQueue&
+        +run() void
+    }
+    class LogConsumer {
+        -logger: unique_ptr~OutputLogger~
+        -queue: ThreadSafeQueue&
+        +run() void
+    }
+    class ThreadSafeQueue~T~ {
+        -mutex_: std::mutex
+        +push(item) bool
+        +waitAndPop(item) bool
+    }
+
+    SimulationEngine *-- Motor
+    SimulationEngine *-- ControllerComponent
+    SimulationEngine *-- Sensor
+    LogConsumer *-- OutputLogger
+    SimulationEngine ..> ThreadSafeQueue
+    LogConsumer ..> ThreadSafeQueue
+```
+
 ### Object-Oriented Design
 The codebase relies heavily on SOLID principles and interface-based design to allow independent parallel development across team members:
 - **Factory Pattern**: The `ComponentFactory` handles the instantiation of all concrete dependencies (Motor, Controller, Sensor, Logger), injecting them cleanly into the simulation engine.
