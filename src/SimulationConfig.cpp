@@ -1,6 +1,7 @@
 #include "SimulationConfig.h"
 #include <iostream>
 #include <cstdlib>
+#include <stdexcept>
 
 using namespace std;
 
@@ -32,7 +33,38 @@ string SimulationConfig::getUsage()
 
 void SimulationConfig::validate()
 {
-    // simple dummy validation
+    if (duration <= 0.0)
+    {
+        throw invalid_argument("SimulationConfig: duration must be positive.");
+    }
+    if (timeStep <= 0.0)
+    {
+        throw invalid_argument("SimulationConfig: timestep must be positive.");
+    }
+    if (timeStep >= duration)
+    {
+        throw invalid_argument("SimulationConfig: timestep must be less than total duration.");
+    }
+    if (voltageLimit <= 0.0)
+    {
+        throw invalid_argument("SimulationConfig: voltageLimit must be positive.");
+    }
+    if (integralLimit < 0.0)
+    {
+        throw invalid_argument("SimulationConfig: integralLimit cannot be negative.");
+    }
+    if (noiseLevel < 0.0)
+    {
+        throw invalid_argument("SimulationConfig: noiseLevel cannot be negative.");
+    }
+    if (kp < 0.0 || ki < 0.0 || kd < 0.0)
+    {
+        throw invalid_argument("SimulationConfig: PID gains (kp, ki, kd) cannot be negative.");
+    }
+    if (outputFile.empty())
+    {
+        throw invalid_argument("SimulationConfig: output file path cannot be empty.");
+    }
 }
 
 bool SimulationConfig::wantsHelp() const

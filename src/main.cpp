@@ -19,7 +19,15 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     
-    config.validate();
+    try
+    {
+        config.validate();
+    }
+    catch (const exception& e)
+    {
+        cerr << "Configuration Error: " << e.what() << endl;
+        return 1;
+    }
 
     // 2. Create the shared thread-safe queue with max capacity
     ThreadSafeQueue<LogRecord> queue(1000);
