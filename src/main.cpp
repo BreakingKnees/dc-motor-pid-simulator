@@ -6,6 +6,7 @@
 #include "LogConsumer.h"
 #include "ThreadSafeQueue.h"
 #include "LogRecord.h"
+#include "GraphVisualizer.h"
 
 int main(int argc, char* argv[]) {
     // 1. Build SimulationConfig
@@ -45,6 +46,10 @@ int main(int argc, char* argv[]) {
     consumerThread.join();
     
     std::cout << "Done. Records written: " << consumer.getRecordsWritten() << std::endl;
+
+    // Automated visualization
+    GraphVisualizer visualizer(config.getOutputFile());
+    visualizer.plot();
 
     return 0;
 }
