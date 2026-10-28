@@ -8,6 +8,11 @@ enum class NoiseType {
     UNIFORM
 };
 
+enum class MotorType {
+    BRUSHED_DC,
+    SERVO
+};
+
 class SimulationConfig {
 private:
     bool helpFlag;
@@ -22,6 +27,7 @@ private:
     double loadStepTime;
     std::uint32_t seed;
     NoiseType noiseType;
+    MotorType motorType;
     std::string outputFile;
 
 public:
@@ -47,5 +53,6 @@ public:
 
     std::uint32_t getSeed() const;
     NoiseType getNoiseType() const;
+    MotorType getMotorType() const;
     std::string getOutputFile() const;
 };

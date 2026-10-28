@@ -19,13 +19,15 @@ SimulationConfig::SimulationConfig()
       loadStepTime(0.0),
       seed(42),
       noiseType(NoiseType::NONE),
+      motorType(MotorType::BRUSHED_DC),
       outputFile("output.csv")
 {
 }
 
 string SimulationConfig::getUsage()
 {
-    return "Usage: simulator [options]\n";
+    return "Usage: simulator [options]\n"
+           "  --motor <brushed|servo>   Motor model (default brushed)\n";
 }
 
 void SimulationConfig::validate()
@@ -103,6 +105,11 @@ NoiseType SimulationConfig::getNoiseType() const
     return noiseType;
 }
 
+MotorType SimulationConfig::getMotorType() const
+{
+    return motorType;
+}
+
 string SimulationConfig::getOutputFile() const
 {
     return outputFile;
@@ -151,6 +158,23 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
         else if (arg == "--voltage-limit" && i + 1 < argc)
         {
             config.voltageLimit = atof(argv[++i]);
+        }
+        else if (arg == "--motor" && i + 1 < argc)
+        {
+            string value = argv[++i];
+            if (value == "servo")
+            {
+                config.motorType = MotorType::SERVO;
+            }
+            else if (value == "brushed")
+            {
+                config.motorType = MotorType::BRUSHED_DC;
+            }
+            else
+            {
+                cerr << "Unknown motor type '" << value
+                     << "' (expected brushed or servo); using brushed.\n";
+            }
         }
         else if (arg == "--noise-level" && i + 1 < argc)
         {
