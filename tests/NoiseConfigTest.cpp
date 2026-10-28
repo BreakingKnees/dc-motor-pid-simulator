@@ -1,14 +1,3 @@
-// Standalone test for the dynamic noise configuration (Ryan's classes).
-//
-// Build & run from the project root:
-//   g++ -std=c++14 -Wall -Wextra -Iinclude tests/NoiseConfigTest.cpp
-//       src/ZeroNoise.cpp src/GaussianNoise.cpp src/UniformNoise.cpp
-//       src/TachometerSensor.cpp -o build/noise_test   (one line)
-//   ./build/noise_test
-//
-// Lives in tests/ (not src/) so the Makefile's src/*.cpp wildcard does not
-// pull a second main() into the simulator.
-
 #include <cmath>
 #include <iostream>
 #include <memory>
@@ -41,7 +30,6 @@ static bool throwsInvalid(F f) {
 }
 
 int main() {
-    // 1. Backward compatibility: same numbers as the plain std:: distributions
     {
         GaussianNoise g(1.5, 0.3, 42);
         std::mt19937 gen(42);
@@ -58,12 +46,12 @@ int main() {
         CHECK(same);
     }
 
-    // 2. Gaussian: change mean/stddev at runtime
+    // Gaussian -  change mean/stddev at runtim
     {
         GaussianNoise g(0.0, 1.0, 1);
         g.setMean(100.0);
         g.setStandardDeviation(0.0);
-        CHECK(g.sample() == 100.0);          // stddev 0 -> constant = mean
+        CHECK(g.sample() == 100.0);          
         CHECK(g.setParameter("mean", -5.0));
         double v = 0;
         CHECK(g.getParameter("mean", v) && v == -5.0);
@@ -71,7 +59,7 @@ int main() {
         CHECK(g.getParameter("stddev", v) && v == 2.0);
     }
 
-    // 3. Gaussian: statistics follow the new settings
+    // Gaussian(new settings)
     {
         GaussianNoise g(0.0, 1.0, 123);
         g.setMean(10.0);
@@ -89,7 +77,6 @@ int main() {
         CHECK(std::fabs(sd - 0.5) < 0.01);
     }
 
-    // 4. Gaussian: invalid values rejected, state unchanged
     {
         GaussianNoise g(1.0, 1.0, 1);
         CHECK(throwsInvalid([&] { g.setStandardDeviation(-0.1); }));
@@ -103,7 +90,7 @@ int main() {
         CHECK(g.getMean() == 1.0 && g.getStandardDeviation() == 1.0);
     }
 
-    // 5. Uniform: bounds at runtime, samples stay inside
+    //  Uniform: bounds
     {
         UniformNoise u(-1.0, 1.0, 5);
         u.setBounds(5.0, 10.0);
@@ -116,21 +103,21 @@ int main() {
         CHECK(u.setParameter("upper", 20.0));
         CHECK(u.getUpperBound() == 20.0);
         u.setBounds(3.0, 3.0);
-        CHECK(u.sample() == 3.0);            // degenerate range is safe
+        CHECK(u.sample() == 3.0);           
     }
 
-    // 6. Uniform: invalid bounds rejected, state unchanged
+    // Uniform: invalid bounds rejected
     {
         UniformNoise u(-1.0, 1.0, 5);
         CHECK(throwsInvalid([&] { u.setBounds(2.0, 1.0); }));
-        CHECK(throwsInvalid([&] { u.setLowerBound(5.0); }));  // > current upper
+        CHECK(throwsInvalid([&] { u.setLowerBound(5.0); }));  
         CHECK(throwsInvalid([] { UniformNoise bad(1.0, -1.0, 1); }));
         CHECK(!u.setParameter("lower", 99.0));
         CHECK(!u.setParameter("lower", NAN));
         CHECK(u.getLowerBound() == -1.0 && u.getUpperBound() == 1.0);
     }
 
-    // 7. Seed change restarts the stream; reset() uses the new seed
+    // Seed change restarts the stream and reset uses the new seed
     {
         GaussianNoise a(0.0, 1.0, 1), b(0.0, 1.0, 2);
         a.setSeed(2);
@@ -141,7 +128,6 @@ int main() {
         CHECK(a.sample() == first);
     }
 
-    // 8. Changing mean mid-run does NOT restart the stream
     {
         GaussianNoise a(0.0, 1.0, 9), b(0.0, 1.0, 9);
         a.sample();
@@ -150,7 +136,6 @@ int main() {
         CHECK(a.sample() == b.sample() + 4.0);
     }
 
-    // 9. ZeroNoise: not configurable, never crashes
     {
         ZeroNoise z;
         double v = 0;
@@ -159,20 +144,19 @@ int main() {
         CHECK(z.sample() == 0.0);
     }
 
-    // 10. Through the sensor (the path the engine would use via Sensor*)
     {
         std::unique_ptr<Sensor> sensor(new TachometerSensor(
             std::unique_ptr<NoiseGenerator>(new GaussianNoise(0.0, 1.0, 3))));
         CHECK(sensor->configureNoise("mean", 50.0));
         CHECK(sensor->configureNoise("stddev", 0.0));
         CHECK(sensor->measure(100.0) == 150.0);
-        CHECK(!sensor->configureNoise("lower", 0.0));   // not a Gaussian setting
+        CHECK(!sensor->configureNoise("lower", 0.0));   
 
         TachometerSensor* t = static_cast<TachometerSensor*>(sensor.get());
         double v = 0;
         CHECK(t->getNoiseParameter("mean", v) && v == 50.0);
 
-        // Swapping generators at runtime still works (existing feature)
+
         t->setNoiseGenerator(
             std::unique_ptr<NoiseGenerator>(new UniformNoise(0.0, 0.0, 1)));
         CHECK(t->configureNoise("lower", -0.5));
