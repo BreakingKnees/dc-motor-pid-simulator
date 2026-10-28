@@ -10,17 +10,20 @@ The architecture is strictly decoupled and utilizes modern C++14 multithreading 
 cpp project/
 ├── Makefile               # Build automation
 ├── README.md              # Project documentation
+├── plot.py                # Automated plotting script (Matplotlib)
 ├── build/                 # Compiled object files and simulator executable
 ├── include/               # Class definitions and interfaces
 │   ├── BrushedDCMotor.h   # Plant models
 │   ├── CompositeController.h # PID logic
+│   ├── GraphVisualizer.h  # Automated visualization wrapper
 │   ├── ThreadSafeQueue.h  # Concurrency primitives
-│   └── ... (23 headers)
+│   └── ... (24 headers)
 └── src/                   # Implementation files
     ├── BrushedDCMotor.cpp
     ├── ComponentFactory.cpp
+    ├── GraphVisualizer.cpp
     ├── main.cpp
-    └── ... (19 sources)
+    └── ... (20 sources)
 ```
 
 ## Build & Run Instructions
@@ -176,3 +179,12 @@ To prevent file I/O latency from blocking the critical physics step calculations
 - **Producer (`SimulationEngine`)**: Runs on the main thread. Responsible purely for stepping the motor physics, polling the sensor, calculating the PID error, and generating a `LogRecord`.
 - **Consumer (`LogConsumer`)**: Runs on a dedicated background thread. Safely pops records from the queue and handles formatting and writing them to the CSV file.
 - **`ThreadSafeQueue`**: A custom synchronization primitive using `std::mutex` and `std::condition_variable` that transports `LogRecord` objects across the thread boundary without race conditions, enforcing capacity limits to prevent memory ballooning.
+
+### Automated Visualization
+To bridge standard C++ simulation with graphical data analysis, the system features a dedicated `GraphVisualizer` wrapper:
+- Decouples file validation and OS-level execution from the core simulation and physics engine.
+- Upon completion of consumer thread logging, automatically triggers `plot.py` via standard system calls.
+- Renders high-resolution telemetry graphs (`simulation_plot.png`) capturing motor speed response, controller effort, and system error over time.
+
+![Simulation Plot](simulation_plot.png)
+
