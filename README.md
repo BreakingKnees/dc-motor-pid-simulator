@@ -51,7 +51,14 @@ make
 * `--kd <value>`         : Derivative gain (default 0.0)
 * `--voltage-limit <V>`  : Maximum voltage output (default 12.0)
 * `--noise-level <val>`  : Injects synthetic Gaussian noise into the sensor
+* `--motor <brushed|servo>` : Plant model to simulate (default brushed)
 * `--output <file.csv>`  : Name of the generated log file
+
+**Motor models (Dev 1):**
+* `brushed` : `BrushedDCMotor`, the original Euler brushed DC plant.
+* `servo`   : `ServoMotor`, a geared, current-limited servo (gear ratio, gearbox efficiency,
+  peak-current saturation, viscous + Coulomb friction). Angular velocity/position and load torque
+  are on the output shaft. Run its unit tests with `make test_servo`.
 
 ## Architecture
 

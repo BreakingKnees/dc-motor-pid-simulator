@@ -10,12 +10,21 @@
 #include "DController.h"
 
 #include "BrushedDCMotor.h"
+#include "ServoMotor.h"
 
 using namespace std;
 
 unique_ptr<Motor> ComponentFactory::createMotor(const SimulationConfig& config)
 {
-    (void)config;
+    if (config.getMotorType() == MotorType::SERVO)
+    {
+        // resistance, inductance, torqueConstant, backEmfConstant, rotorInertia,
+        // viscousFriction, coulombFriction, gearRatio, gearEfficiency,
+        // maxCurrent, initialVelocity
+        return make_unique<ServoMotor>(
+            1.0, 0.005, 0.02, 0.02, 5e-5, 1e-5, 2e-3, 4.0, 0.9, 5.0, 0.0);
+    }
+
     // Hardcoding reasonable physical constants for a small 12V DC motor:
     // resistance, inductance, torqueConstant, backEmfConstant, inertia, viscousFriction, initialVelocity
     return make_unique<BrushedDCMotor>(2.0, 0.5, 0.1, 0.1, 0.01, 0.001, 0.0);
