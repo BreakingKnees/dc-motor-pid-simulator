@@ -48,10 +48,11 @@ make
 * `--target <rad/s>`     : Target angular velocity (default 100.0)
 * `--kp <value>`         : Proportional gain (default 1.0)
 * `--ki <value>`         : Integral gain (default 0.0)
-* `--kd <value>`         : Derivative gain (default 0.0)
-* `--voltage-limit <V>`  : Maximum voltage output (default 12.0)
-* `--noise-level <val>`  : Injects synthetic Gaussian noise into the sensor
-* `--output <file.csv>`  : Name of the generated log file
+* `--kd <value>`                 : Derivative gain (default 0.0)
+* `--voltage-limit <V>`          : Maximum voltage output (default 12.0)
+* `--noise-level <val>`          : Sets sensor noise amplitude / standard deviation
+* `--noise-type <gaussian|uniform|none>` : Selects noise distribution (default: none / gaussian if level > 0)
+* `--output <file.csv>`          : Name of the generated log file
 
 ## Architecture
 
