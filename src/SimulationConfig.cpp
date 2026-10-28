@@ -179,9 +179,25 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
         else if (arg == "--noise-level" && i + 1 < argc)
         {
             config.noiseLevel = atof(argv[++i]);
-            if (config.noiseLevel > 0)
+            if (config.noiseLevel > 0 && config.noiseType == NoiseType::NONE)
             {
                 config.noiseType = NoiseType::GAUSSIAN;
+            }
+        }
+        else if (arg == "--noise-type" && i + 1 < argc)
+        {
+            string typeStr = argv[++i];
+            if (typeStr == "uniform")
+            {
+                config.noiseType = NoiseType::UNIFORM;
+            }
+            else if (typeStr == "gaussian")
+            {
+                config.noiseType = NoiseType::GAUSSIAN;
+            }
+            else if (typeStr == "none")
+            {
+                config.noiseType = NoiseType::NONE;
             }
         }
     }
