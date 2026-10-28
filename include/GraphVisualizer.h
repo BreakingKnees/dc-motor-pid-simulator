@@ -1,13 +1,15 @@
 #pragma once
 #include <string>
 
+using namespace std;
+
 class GraphVisualizer {
 private:
-    std::string csvFilePath_;
-    std::string scriptPath_;
+    string csvFilePath_;
+    string scriptPath_;
 
 public:
-    GraphVisualizer(const std::string& csvFilePath, const std::string& scriptPath = "plot.py");
+    GraphVisualizer(const string& csvFilePath, const string& scriptPath = "plot.py");
 
     bool plot() const;
 };

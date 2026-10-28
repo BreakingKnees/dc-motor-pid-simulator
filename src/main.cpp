@@ -8,12 +8,14 @@
 #include "LogRecord.h"
 #include "GraphVisualizer.h"
 
+using namespace std;
+
 int main(int argc, char* argv[]) {
     // 1. Build SimulationConfig
     SimulationConfig config = SimulationConfig::fromArguments(argc, argv);
     
     if (config.wantsHelp()) {
-        std::cout << SimulationConfig::getUsage() << std::endl;
+        cout << SimulationConfig::getUsage() << endl;
         return 0;
     }
     
@@ -29,23 +31,23 @@ int main(int argc, char* argv[]) {
     auto logger = ComponentFactory::createLogger(config);
 
     // 4. Inject them into the producer and consumer
-    SimulationEngine engine(std::move(motor), std::move(controller), std::move(sensor), queue, config);
-    LogConsumer consumer(queue, std::move(logger));
+    SimulationEngine engine(move(motor), move(controller), move(sensor), queue, config);
+    LogConsumer consumer(queue, move(logger));
 
-    // 5. Manage starting/joining the std::thread for the consumer
-    std::thread consumerThread(&LogConsumer::run, &consumer);
+    // 5. Manage starting/joining the thread for the consumer
+    thread consumerThread(&LogConsumer::run, &consumer);
 
-    std::cout << "Starting simulation..." << std::endl;
+    cout << "Starting simulation..." << endl;
     
     // Run producer on the main thread
     engine.run();
     
-    std::cout << "Simulation finished. Waiting for consumer to finish logging..." << std::endl;
+    cout << "Simulation finished. Waiting for consumer to finish logging..." << endl;
 
     // Join consumer thread
     consumerThread.join();
     
-    std::cout << "Done. Records written: " << consumer.getRecordsWritten() << std::endl;
+    cout << "Done. Records written: " << consumer.getRecordsWritten() << endl;
 
     // Automated visualization
     GraphVisualizer visualizer(config.getOutputFile());

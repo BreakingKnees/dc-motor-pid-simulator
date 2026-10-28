@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cstdlib>
 
+using namespace std;
+
 SimulationConfig::SimulationConfig()
     : helpFlag(false),
       duration(10.0),
@@ -21,7 +23,7 @@ SimulationConfig::SimulationConfig()
 {
 }
 
-std::string SimulationConfig::getUsage()
+string SimulationConfig::getUsage()
 {
     return "Usage: simulator [options]\n";
 }
@@ -91,7 +93,7 @@ double SimulationConfig::getLoadStepTime() const
     return loadStepTime;
 }
 
-std::uint32_t SimulationConfig::getSeed() const
+uint32_t SimulationConfig::getSeed() const
 {
     return seed;
 }
@@ -101,7 +103,7 @@ NoiseType SimulationConfig::getNoiseType() const
     return noiseType;
 }
 
-std::string SimulationConfig::getOutputFile() const
+string SimulationConfig::getOutputFile() const
 {
     return outputFile;
 }
@@ -112,7 +114,7 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
     
     for (int i = 1; i < argc; ++i)
     {
-        std::string arg = argv[i];
+        string arg = argv[i];
         
         if (arg == "--help" || arg == "-h")
         {
@@ -120,15 +122,15 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
         }
         else if (arg == "--duration" && i + 1 < argc)
         {
-            config.duration = std::atof(argv[++i]);
+            config.duration = atof(argv[++i]);
         }
         else if (arg == "--timestep" && i + 1 < argc)
         {
-            config.timeStep = std::atof(argv[++i]);
+            config.timeStep = atof(argv[++i]);
         }
         else if (arg == "--target" && i + 1 < argc)
         {
-            config.targetSpeed = std::atof(argv[++i]);
+            config.targetSpeed = atof(argv[++i]);
         }
         else if (arg == "--output" && i + 1 < argc)
         {
@@ -136,25 +138,25 @@ SimulationConfig SimulationConfig::fromArguments(int argc, char* argv[])
         }
         else if (arg == "--kp" && i + 1 < argc)
         {
-            config.kp = std::atof(argv[++i]);
+            config.kp = atof(argv[++i]);
         }
         else if (arg == "--ki" && i + 1 < argc)
         {
-            config.ki = std::atof(argv[++i]);
+            config.ki = atof(argv[++i]);
         }
         else if (arg == "--kd" && i + 1 < argc)
         {
-            config.kd = std::atof(argv[++i]);
+            config.kd = atof(argv[++i]);
         }
         else if (arg == "--voltage-limit" && i + 1 < argc)
         {
-            config.voltageLimit = std::atof(argv[++i]);
+            config.voltageLimit = atof(argv[++i]);
         }
         else if (arg == "--noise-level" && i + 1 < argc)
         {
-            config.noiseLevel = std::atof(argv[++i]);
-            // If noise level is provided, switch to Gaussian noise automatically
-            if (config.noiseLevel > 0) {
+            config.noiseLevel = atof(argv[++i]);
+            if (config.noiseLevel > 0)
+            {
                 config.noiseType = NoiseType::GAUSSIAN;
             }
         }

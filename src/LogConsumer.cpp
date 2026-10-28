@@ -1,7 +1,9 @@
 #include "LogConsumer.h"
 
-LogConsumer::LogConsumer(ThreadSafeQueue<LogRecord>& queue, std::unique_ptr<OutputLogger> logger)
-    : queue_(queue), logger_(std::move(logger)), recordsWritten_(0)
+using namespace std;
+
+LogConsumer::LogConsumer(ThreadSafeQueue<LogRecord>& queue, unique_ptr<OutputLogger> logger)
+    : queue_(queue), logger_(move(logger)), recordsWritten_(0)
 {
 }
 
@@ -19,7 +21,7 @@ void LogConsumer::run()
     logger_->close();
 }
 
-std::size_t LogConsumer::getRecordsWritten() const
+size_t LogConsumer::getRecordsWritten() const
 {
     return recordsWritten_;
 }
