@@ -41,3 +41,18 @@ double TachometerSensor::getLastMeasurement() {
 double TachometerSensor::getLastNoise() {
     return lastNoise_;
 }
+
+bool TachometerSensor::configureNoise(const std::string& name, double value) {
+    if (!noiseGenerator_) {
+        return false;
+    }
+    return noiseGenerator_->setParameter(name, value);
+}
+
+bool TachometerSensor::getNoiseParameter(const std::string& name,
+                                         double& value) const {
+    if (!noiseGenerator_) {
+        return false;
+    }
+    return noiseGenerator_->getParameter(name, value);
+}
